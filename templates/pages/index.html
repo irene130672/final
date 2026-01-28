@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}
+    | Welcome
+{% endblock title %}
+{% block content %}
+    <!-- Showcase -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <section id="showcase">
+        <div class="container text-center">
+            <div class="home-search p-5">
+                <div class="overlay p-5">
+                    <h1 class="display-4 mb-4">Searching for jobs</h1>
+                    <p class="lead">freelancego website can help you work from home</p>
+                    <div class="search">
+                        <form action="{% url 'listings:search' %}" method="GET">
+                            <!-- Form Row 1 -->
+                            <div class="form-row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="sr-only">jobs</label>
+                                    <input type="text"
+                                           name="keywords"
+                                           class="form-control"
+                                           placeholder="Keyword (Job Title, Company, Job Description, Requirement)" />
+                                </div>
+                            </div>
+                            <!-- Form Row 2 -->
+                            <div class="form-row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="sr-only">Industry</label>
+                                    <select name="industry" class="form-control">
+                                        <option value="" {% if not values.industry %}selected="true"{% endif %}>Industry (All)</option>
+                                        {% for key, value in industry_choices.items %}
+                                            <option value="{{ key }}"
+                                                    {% if values.industry == key %}selected="true"{% endif %}>
+                                                {{ value }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="sr-only">Budget</label>
+                                    <select name="budget" class="form-control">
+                                        <option value="" {% if not values.budget %}selected="true"{% endif %}>Budget (All)</option>
+                                        {% for key, value in budget_choices.items %}
+                                            <option value="{{ key }}"
+                                                    {% if values.budget == key %}selected="true"{% endif %}>
+                                                {{ value }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <select name="duration" class="form-control" id="type">
+                                        <option value="" {% if not values.duration %}selected="true"{% endif %}>Duration (All)</option>
+                                        {% for key, value in duration_choices.items %}
+                                            <option value="{{ key }}"
+                                                    {% if values.duration == key %}selected="true"{% endif %}>
+                                                {{ value }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn btn-info btn-block mt-4" type="submit">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Listings -->
+    <section id="listings" class="py-5">
+        <div class="container">
+            <h3 class="text-center mb-3" style="font-size:50px;">Latest Job Posts</h3>
+            <div class="row">
+                {% if listings %}
+                    <!-- Listing 1 -->
+                    {% for listing in listings %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card listing-preview"
+                                 style="display: flex;
+                                        flex-direction: column;
+                                        justify-content: center;
+                                        align-items: center;
+                                        min-height: 200px;
+                                        padding: 20px 0">
+                                <img class="card-img-top"
+                                     src="{{ listing.company.logo }}"
+                                     alt="Company Logo"
+                                     style="width: 100px;
+                                            height: 100px;
+                                            object-fit: contain;
+                                            display: block;
+                                            margin: 0 auto" />
+                                <div class="card-img-overlay"></div>
+                                <div class="card-body">
+                                    <div class="listing-heading text-center">
+                                        <h4 class="text-primary">{{ listing.title | title }}</h4>
+                                    </div>
+                                    <hr />
+                                    <div class="row py-2" style="color: #124a81;">
+                                        <div class="col-12">
+                                            <i class="fa-regular fa-money-bill-1"></i>  Budget: {{ listing.budget }}
+                                        </div>
+                                    </div>
+                                    <div class="row py-2" style="color: #124a81;">
+                                        <div class="col-12">
+                                            <i class="fa-solid fa-calendar-days"></i> Duration:  {{ listing.duration }}
+                                        </div>
+                                    </div>
+                                    <div class="row py-2" style="color: #124a81;">
+                                        <div class="col-12">
+                                            <i class="fa-solid fa-briefcase"></i> Industry: {{ listing.industry }}
+                                        </div>
+                                    </div>
+                                    <hr />
+                                    <div class="row py-2" style="color: #124a81;">
+                                        <div class="col-12">
+                                            <i class="fa-solid fa-building"></i> Company: <a href="{% url 'companies:company' listing.company.id %}"
+    style="color: #124a81">{{ listing.company }}</a>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-2">
+                                        <div class="col-12" style="color: #124a81;">
+                                            <i class="fas fa-clock"></i> Post on {{ listing.publish_date }}
+                                        </div>
+                                    </div>
+                                    <a href="{% url 'listings:listing' listing.id %}"
+                                       class="btn btn-primary btn-block">More Info</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class='col-md-12'>
+                        <h2>No Job Available</h2>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- Freelancer and HR Sections -->
+            <div class="container mt-5">
+                <div class="row">
+                    <!-- Freelancer Card -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 position-relative">
+                            <img src="{% static 'img/freelancer.png' %}"
+                                 alt="Freelancer"
+                                 class="card-img rounded"
+                                 style="border-radius: 20px;
+                                        width:100%;
+                                        height: auto object-fit: cover">
+                            <div class="card-img-overlay d-flex flex-column justify-content-end p-4"
+                                 style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+                                        border-radius: 20px">
+                                <h4 class="card-title text-white mb-2">Freelancer</h4>
+                                <p class="card-text text-white mb-2">Explore new sources of employment</p>
+                                <p class="card-text text-light mb-3" style="font-size: 0.9rem;">
+                                    You can connect with more job opportunities on Freelancergo and have the chance to collaborate with major well-known organizations.
+                                </p>
+                                {% if not user.is_authenticated %}
+                                    <a href="{% url 'accounts:register' %}?account_type=individual"
+                                       class="btn btn-outline-light align-self-start">Join in as freelancer</a>
+                                {% else %}
+                                    <button class="btn btn-outline-secondary align-self-start" disabled>Already Registered</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- HR Card -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 position-relative">
+                            <img src="{% static 'img/HR.png' %}"
+                                 alt="HR"
+                                 class="card-img rounded"
+                                 style="border-radius: 20px;
+                                        width:100%;
+                                        height: auto object-fit: cover">
+                            <div class="card-img-overlay d-flex flex-column justify-content-end p-4"
+                                 style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+                                        border-radius: 20px">
+                                <h4 class="card-title text-white mb-2">HR</h4>
+                                <p class="card-text text-white mb-2">Let our experts solve your problem</p>
+                                <p class="card-text text-light mb-3" style="font-size: 0.9rem;">
+                                    Posting jobs directly to get experts as quickly as possible. And you're sure to find a freelancer you like!
+                                </p>
+                                {% if not user.is_authenticated %}
+                                    <a href="{% url 'accounts:register' %}?account_type=hr"
+                                       class="btn btn-outline-light align-self-start">Join in as HR</a>
+                                {% else %}
+                                    <button class="btn btn-outline-secondary align-self-start" disabled>Already Registered</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% comment %} {% load widget_tweaks %}  {% endcomment %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+    <!-- Custom CSS (exact match to HR dashboard style) -->
+    <style>
+    /* HR Dashboard Core Styles (consistent with your dashboard) */
+    .breadcrumb {
+        background-color: transparent;
+        padding: 0;
+        margin-bottom: 1rem;
+    }
+    .breadcrumb-item a {
+        color: #094194;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .breadcrumb-item a:hover {
+        color: #07357a;
+    }
+    .breadcrumb-item.active {
+        color: #6c757d;
+    }
+
+    .dashboard-card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border-radius: 8px;
+        overflow: hidden;
+        max-width: 700px;
+        margin: 0 auto 2rem;
+    }
+    .dashboard-card .card-header {
+        background-color: #094194 !important; /* HR dashboard brand color */
+        color: white;
+        border-bottom: none;
+        padding: 1rem 1.25rem;
+        text-align: center;
+    }
+    .dashboard-card .card-body {
+        padding: 2rem;
+    }
+
+    .form-control {
+        border-radius: 4px;
+        border: 1px solid #ced4da;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    .form-control:focus {
+        border-color: #094194;
+        box-shadow: 0 0 0 0.2rem rgba(9, 65, 148, 0.25);
+        outline: none;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-submit {
+        background-color: #094194 !important;
+        border-color: #094194 !important;
+        color: white !important;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+        width: 100%;
+    }
+    .btn-submit:hover {
+        background-color: #07357a !important;
+        border-color: #07357a !important;
+    }
+
+    /* File input styling (matches HR dashboard) */
+    input[type="file"].form-control {
+        padding: 0.375rem 0.75rem;
+    }
+    </style>
+    <section id="bc" class="mt-3">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url "companies:HR_dashboard" %}">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active">Input / Edit Company Information</li>
+                </ol>
+            </nav>
+        </div>
+    </section>
+    <section id="company_info" class="py-4">
+        <div class="container">
+            <div class="dashboard-card card">
+                <div class="card-header">
+                    <h1 class="h4 mb-0">Input / Edit Company Information</h1>
+                </div>
+                <div class="card-body">
+                    <form method="POST"
+                          action="{% url 'companies:company_edit_info' %}"
+                          enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ user.id }}" />
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label for="name" class="form-label">Company Name:</label>
+                                <!-- prettier-ignore -->
+                                <input type="text"
+                                       name="name"
+                                       class="form-control"
+                                       value="{{ company.name|default:'' }}" />
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email:</label>
+                                <input type="email"
+                                       name="email"
+                                       class="form-control"
+                                       value="{{ company.email|default:user.email }}" />
+                            </div>
+                            <div class="form-group">
+                                <label for="phone" class="form-label">Phone:</label>
+                                <input type="text"
+                                       name="phone"
+                                       class="form-control"
+                                       value="{{ company.phone|default:'00000000' }}" />
+                            </div>
+                            <div class="form-group">
+                                <label for="industry" class="form-label">Industry:</label>
+                                <select name="industry" class="form-control form-control-lg" row="4" required>
+                                    <option value="" disabled selected>Select Industry</option>
+                                    {% for key, value in industry_choices.items %}
+                                        <option value="{{ key }}" {% if company.industry == key %}selected{% endif %}>{{ value }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="services" class="form-label">Services:</label>
+                                <textarea name="serivces" class="form-control" row="3">{{ company.serivces|default:'' }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="description" class="form-label">Description:</label>
+                                <textarea name="description" class="form-control" row="5">{{ company.description|default:'' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Logo</label>
+                            {% if company.logo %}
+                                <div class="mb-2">
+                                    <small class="text-muted">Current logo: {{ company.logo.name }}</small>
+                                </div>
+                            {% endif %}
+                            <input type="file"
+                                   class="form-control"
+                                   name="logo"
+                                   accept=".png,.jpg,.jpeg,image/*">
+                        </div>
+                        <input type="Submit" value="Submit" class="btn btn-block btn-submit" />
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

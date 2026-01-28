@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}
+    | {{ user.username | title }}
+{% endblock title %}
+{% block content %}
+    <section id="showcase-inner" class="py-5 text-white">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-12">
+                    <h1 class="display-4">{{ user.username | title }} Dashboard</h1>
+                    <p class="lead" style="font-size: 2rem;">Manage your job applications</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb -->
+    <section id="bc" class="mt-3">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"style="font-size: 20px">
+                        <a href="{% url "pages:index" %}">
+                            <i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li class="breadcrumb-item active"style="font-size: 20px">Dashboard</li>
+                </ol>
+            </nav>
+        </div>
+    </section>
+    {% include 'partials/_alert.html' %}
+    <section id="dashboard" class="py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>Welcome {{ user.username | title }}</h2>
+                    {% if apply %}
+                        <!-- Applications Card -->
+                        <div class="card shadow-sm border-0 mb-4">
+                            <div class="card-header bg-white py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-file-alt text-primary me-2"></i>My Applications
+                                    </h5>
+                                    <span class="badge">{{ apply.count }} application{{ apply.count|pluralize }}</span>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Job Title</th>
+                                                <th scope="col">Company</th>
+                                                <th scope="col">Applied Date</th>
+                                                <th scope="col">Job Status</th>
+                                                <th scope="col">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for application in apply %}
+                                                <tr>
+                                                    <td>{{ forloop.counter }}</td>
+                                                    <td>
+                                                        <strong>{{ application.listing.title | title }}</strong>
+                                                    </td>
+                                                    <td>
+                                                        {% if application.listing.company %}
+                                                            <a href="{% url 'companies:company' application.listing.company.id %}"
+                                                               class="text-primary"
+                                                               title="View company details">
+                                                                <i class="fas fa-building me-1"></i>
+                                                                {{ application.listing.company.name | title }}
+                                                            </a>
+                                                        {% else %}
+                                                            <span class="text-muted">No company info</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <span class="text-muted">{{ application.apply_date | date:"M d, Y" }}</span>
+                                                        <br>
+                                                        <small class="text-muted">{{ application.apply_date | time:"g:i A" }}</small>
+                                                    </td>
+                                                    <td>
+                                                        {% if application.listing.is_active %}
+                                                            <span class="badge badge-success p-2">
+                                                                <i class="fas fa-check-circle me-1"></i>Active
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="badge badge-secondary p-2">
+                                                                <i class="fas fa-times-circle me-1"></i>Inactive
+                                                            </span>
+                                                            <br>
+                                                            <small class="text-muted mt-1 d-block">
+                                                                <i class="fas fa-info-circle me-1"></i>Job no longer active
+                                                            </small>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group btn-group-sm" role="group">
+                                                            <a class="btn btn-outline-primary"
+                                                               href="{% url 'listings:listing' application.listing_id %}"
+                                                               title="View job details">
+                                                                <i class="fas fa-eye"></i> View
+                                                            </a>&nbsp&nbsp
+                                                            <a class="btn btn-outline-secondary"
+                                                               href="{% url 'applies:apply' application.listing_id %}"
+                                                               title="Edit your application">
+                                                                <i class="fas fa-edit"></i> Edit
+                                                            </a>&nbsp&nbsp
+                                                            <button type="button"
+                                                                    class="btn btn-outline-danger"
+                                                                    onclick="confirmWithdraw('{% url 'applies:withdraw' application.listing_id %}')"
+                                                                    title="Withdraw your application">
+                                                                <i class="fas fa-trash-alt"></i> Withdraw
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Information Alert -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Note:</strong> You can view job details, edit your application, or withdraw your application at any time.
+                            <br>
+                            <small class="d-block mt-1">
+                                <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                <strong>Inactive Jobs:</strong> Jobs marked as "Inactive" are no longer accepting applications. Your existing application may not be considered.
+                            </small>
+                        </div>
+                    {% else %}
+                        <!-- No Applications -->
+                        <div class="text-center py-5">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Applications Yet</h4>
+                            <p class="text-muted">You haven't applied for any jobs yet.</p>
+                            <a href="{% url 'listings:index' %}" class="btn btn-primary mt-2">
+                                <i class="fas fa-search"></i> Browse Jobs
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+    function confirmWithdraw(url) {
+        if (confirm('Are you sure you want to withdraw your application?\n\nThis action cannot be undone. You will need to apply again if you change your mind.')) {
+            // Create a form to submit the withdrawal request
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = url;
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            // Submit the form
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+    
+    // Show warning when editing application for inactive job
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all Edit buttons in the dashboard
+        const editButtons = document.querySelectorAll('a.btn-outline-secondary[href*="apply"]');
+        
+        editButtons.forEach(function(button) {
+            // Find the row containing this button
+            const row = button.closest('tr');
+            if (row) {
+                // Check if this job is inactive by looking for the inactive badge
+                const inactiveBadge = row.querySelector('.badge.badge-secondary');
+                if (inactiveBadge && inactiveBadge.textContent.includes('Inactive')) {
+                    button.addEventListener('click', function(e) {
+                        if (!confirm('⚠️ JOB IS INACTIVE ⚠️\n\nThis job is no longer active.\n\nYour application may not be considered by the company.\n\nDo you still want to edit your application?')) {
+                            e.preventDefault();
+                        }
+                    });
+                }
+            }
+        });
+    });
+    </script>
+{% endblock %}

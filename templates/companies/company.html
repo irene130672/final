@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load static %}
+<!--load humanize -->
+{% load humanize %}
+{% block title %}
+    | {{ company.name }}
+{% endblock title %}
+<!-- About main content -->
+{% block content %}
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <section id="showcase-inner" class="py-5 text-white">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-12">
+                    <h1 class="display-4">{{ company.name | title }}</h1>
+                    {% comment %} <p class="lead">
+                        <i class="fas fa-map-marker"></i> {{ company.industry | title }}
+                    </p> {% endcomment %}
+                </div>
+            </div>
+        </section>
+        <!-- Breadcrumb -->
+        <section id="bc" class="mt-3">
+            <div class="container">
+                <nav>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href= {% url "pages:index" %}>Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href= {% url "listings:index" %}>Listings</a>
+                        </li>
+                        <li class="breadcrumb-item active">{{ company.name | title }}</li>
+                    </ol>
+                </nav>
+            </div>
+        </section>
+        {% include 'partials/_alert.html' %}
+        <!-- Listing -->
+        <section id="listing" class="py-4">
+            <div class="container">
+                {% comment %} need fix (back to job_listing_id){% endcomment %}
+                <a href={% url "listings:index" %} class="btn btn-light mb-4">Back To Jobs details</a>
+                <div class="d-flex align-items-center " style="gap:0.5rem;">
+                    <img class="me-3"
+                         style="width: 60px;
+                                height: 60px;
+                                object-fit: contain"
+                         src="{{ company.logo.url }}"
+                         alt="company logo" />
+                    <h1 class="mb-0" style="margin: 0;">{{ listing.company.name }}</h1>
+                </div>
+                <!-- Fields -->
+                <div class="row mb-5 fields">
+                    <div class="col-md-12">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item" style="color: #092541;">
+                                <i class="fa-solid fa-industry"></i> Industry : <span style="color: #124a81;">{{ company.industry }}</span>
+                            </li>
+                            <li class="list-group-item "style="color: #092541;">
+                                <i class="fa-solid fa-align-center"></i> Services : <span style="color: #124a81;">{{ company.serivces }}</span>
+                            </li>
+                            <li class="list-group-item"style="color: #092541;">
+                                <i class="fa-solid fa-phone"></i> Phone: <span style="color: #124a81;">{{ company.phone }}</span>
+                            </li>
+                            <li class="list-group-item"style="color: #092541;">
+                                <i class="fa-solid fa-envelope"></i> Email: <span style="color: #124a81;">: {{ company.email }}</span>
+                            </li>
+                            <li class="list-group-item"style="color: #092541;">
+                                <i class="fa-solid fa-file"></i> Description: <span style="color: #124a81;">{{ company.description | linebreaks }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Jobs Posted by Company -->
+                <div class="row mb-5">
+                    <div class="col-md-12">
+                        {% if is_company_hr %}
+                            <h2 class="mb-4">All Jobs Posted by {{ company.name }} (HR View)</h2>
+                            <div class="alert alert-info mb-4">
+                                <i class="fas fa-info-circle"></i> As the company HR, you can see all jobs including inactive ones.
+                            </div>
+                        {% else %}
+                            <h2 class="mb-4">Active Jobs Posted by {{ company.name }}</h2>
+                        {% endif %}
+                        {% if job_listings %}
+                            <div class="row">
+                                {% for job in job_listings %}
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card h-100 {% if not job.is_active %}border-warning{% endif %}">
+                                            <div class="card-body">
+                                                {% if is_company_hr and not job.is_active %}
+                                                    <div class="mb-2">
+                                                        <span class="badge bg-warning text-dark">
+                                                            <i class="fas fa-eye-slash"></i> Inactive
+                                                        </span>
+                                                    </div>
+                                                {% endif %}
+                                                <h5 class="card-title">{{ job.title }}</h5>
+                                                <p class="card-text">
+                                                    <i class="fas fa-industry"></i> Industry: {{ job.industry }}
+                                                    <br>
+                                                    <i class="fas fa-money-bill-wave"></i> Budget: {{ job.budget }}
+                                                    <br>
+                                                    <i class="fas fa-clock"></i> Duration: {{ job.duration }}
+                                                    <br>
+                                                    <i class="fas fa-calendar-alt"></i> Posted: {{ job.publish_date|date:"M d, Y" }}
+                                                </p>
+                                                <p class="card-text">{{ job.description|truncatewords:30 }}</p>
+                                            </div>
+                                            <div class="card-footer">
+                                                <a href="{% url 'listings:listing' job.id %}"
+                                                   class="btn btn-primary btn-block">View Job Details</a>
+                                                {% if is_company_hr %}
+                                                    <a href="{% url 'companies:HR_dashboard' %}"
+                                                       class="btn btn-outline-secondary btn-block mt-2">Manage Job</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <p class="mb-0">
+                                    {% if is_company_hr %}
+                                        Your company hasn't posted any jobs yet. <a href="{% url 'companies:job_post' %}">Post your first job</a>
+                                    {% else %}
+                                        This company hasn't posted any jobs yet.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

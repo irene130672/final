@@ -1,0 +1,382 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+<!-- index main content -->
+{% block title %}
+  | Search
+{% endblock title %}
+{% block content %}
+  <!-- Custom  -->
+  <style>
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.5;
+        color: #212529;
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff !important;
+        min-height: 100vh;
+        
+    }
+
+    #listings, #showcase-inner, #bc {
+        font-size: 14px;
+    }
+
+    #showcase-inner {
+        background-color: #a4c8e0;
+        color: #fffffffe !important;
+        padding: 20px 0;
+        text-align: center;
+        border-bottom: 1px solid #88a8c0;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 1;
+    }
+    #showcase-inner h1.display-4 {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0 0 8px 0;
+    }
+    #showcase-inner p.lead {
+        font-size: 16px;
+        margin: 0;
+    }
+
+
+    #bc .breadcrumb {
+        background-color: transparent;
+        padding: 10px 0;
+        margin: 0;
+        border-radius: 0;
+        list-style: none;
+        position: relative;
+        z-index: 1;
+    }
+    #bc .breadcrumb-item {
+        display: inline-block;
+    }
+    #bc .breadcrumb-item a {
+        color: #1a4b94;
+        text-decoration: none;
+        font-weight: normal;
+    }
+    #bc .breadcrumb-item a:hover {
+        color: #103870;
+        text-decoration: underline;
+    }
+    #bc .breadcrumb-item.active {
+        color: #555555;
+    }
+    #bc .breadcrumb-item + .breadcrumb-item::before {
+        content: ">";
+        padding: 0 8px;
+        color: #666;
+    }
+
+    /* Listing section - 2 jobs per row */
+    #listings {
+        padding: 10px 0;
+        position: relative;
+        z-index: 1;
+    }
+    #listings .job-col {
+        width: 50%;
+        max-width: 50%;
+        padding: 0 15px;
+        float: left;
+        box-sizing: border-box;
+        margin-bottom: 15px;
+    }
+    @media (max-width: 768px) {
+        #listings .job-col {
+            width: 100%;
+            max-width: 100%;
+        }
+    }
+
+
+    #listings .card {
+        border: 1px solid #cccccc;
+        border-radius: 0;
+        box-shadow: 0 4px 20px rgb(21, 73, 111);
+        padding: 15px;
+        height: 100%;
+        background-color: #f0f7fc !important;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+
+    #listings .card-info {
+        flex: 1;
+        padding-right: 10px;
+    }
+
+    /* Company logo - STRICTLY RIGHT side*/
+    #listings .card-logo {
+        width: 90px;
+        height: 90px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        padding: 5px;
+        position: relative;
+        right: 0;
+        top: 0;
+    }
+    #listings .card-logo img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+
+    #listings .card-title {
+        color: #1a4b94;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0 0 8px 0;
+    }
+    #listings .card-subtitle {
+        color: #555555;
+        font-size: 14px;
+        margin: 0 0 5px 0;
+    }
+    #listings .card-text {
+        color: #333333;
+        font-size: 14px;
+        margin: 0 0 8px 0;
+        line-height: 1.4;
+    }
+
+    #listings .btn-outline-primary {
+        background-color: #1a4b94;
+        color: white;
+        border: 1px solid #103870;
+        border-radius: 0;
+        padding: 6px 12px;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        margin-top: 8px;
+    }
+    #listings .btn-outline-primary:hover {
+        background-color: #103870;
+        border-color: #0d2c58;
+    }
+
+
+    #listings .col-md-12 h2 {
+        font-size: 16px;
+        color: #555555;
+        font-weight: normal;
+        padding: 20px 0;
+        margin: 0;
+    }
+
+    .pagination {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0 0 0;
+        clear: both;
+    }
+    .pagination .page-item {
+        display: inline-block;
+        margin-right: 2px;
+    }
+    .pagination .page-link {
+        color: #1a4b94;
+        border: 1px solid #cccccc;
+        border-radius: 0;
+        padding: 6px 12px;
+        font-size: 14px;
+        text-decoration: none;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #1a4b94;
+        color: white;
+        border-color: #1a4b94;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #999999;
+        border-color: #cccccc;
+        cursor: not-allowed;
+    }
+    .pagination .page-link:hover:not(.disabled) {
+        background-color: #e8f0f8;
+        border-color: #1a4b94;
+    }
+
+    
+    footer {
+        font-size: 16px !important; 
+        line-height: 1.6 !important; 
+    }
+  </style>
+  <!-- Hero section -->
+  <section id="showcase-inner" class="py-5 text-white">
+    <div class="container">
+      <div class="row text-center">
+        <div class="col-md-12">
+          <h1 class="display-3">Search Jobs</h1>
+          <p class="lead" style="font-size: 25px">Find your perfect freelance opportunity</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Breadcrumb -->
+  <section id="bc" class="mt-3">
+    <div class="container">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item" style="font-size: 25px">
+            <a href= {% url "pages:index" %}>
+              <i class="fas fa-home"></i> Home</a>
+          </li>
+          <li class="breadcrumb-item active" style="font-size: 25px">Search Results</li>
+        </ol>
+      </nav>
+    </div>
+  </section>
+  <!-- Search Form -->
+  <section id="showcase">
+    <div class="container text-center">
+      <div class="home-search p-5">
+        <div class="overlay p-5">
+          <h1 class="display-4 mb-4">Search for jobs</h1>
+          <p class="lead">freelancego website can help you work from home</p>
+          <div class="search">
+            <form action={% url "listings:search" %} method = "GET">
+              <!-- Form Row 1 -->
+              <div class="form-row">
+                <div class="col-md-12 mb-3">
+                  <label class="sr-only">jobs</label>
+                  <input type="text"
+                         name="keywords"
+                         class="form-control"
+                         placeholder="Keyword (Job Title, Company, Job Description, Requirement)"
+                         value="{{ values.keywords }}" />
+                </div>
+              </div>
+              <!-- Form Row 2 -->
+              <div class="form-row">
+                <div class="col-md-4 mb-3">
+                  <label class="sr-only">Industry</label>
+                  <select name="industry" class="form-control">
+                    <option value="" {% if not values.industry %}selected="true"{% endif %}>Industry (All)</option>
+                    {% for key, value in industry_choices.items %}
+                      <option value="{{ key }}"
+                              {% if key == values.industry %}selected="true"{% endif %}>{{ value }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="sr-only">Budget</label>
+                  <select name="budget" class="form-control">
+                    <option value="" {% if not values.budget %}selected="true"{% endif %}>Budget (All)</option>
+                    {% for key, value in budget_choices.items %}
+                      <option value="{{ key }}"
+                              {% if key == values.budget %}selected="true"{% endif %}>{{ value }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <select name="duration" class="form-control" id="duration">
+                    <option value="" {% if not values.duration %}selected="true"{% endif %}>Duration (All)</option>
+                    {% for key, value in duration_choices.items %}
+                      <option value="{{ key }}"
+                              {% if key == values.duration %}selected="true"{% endif %}>{{ value }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-block mt-4" type="submit">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Listings - Logo  -->
+  <section id="listings" class="py-4">
+    <div class="container">
+      <div class="row">
+        {% if listings %}
+          {% for listing in listings %}
+            <div class="job-col">
+              <div class="card">
+                <div class="card columns">
+                  <div class="card-body">
+                    <h4 class="card-title">{{ listing.title }} (Industry: {{ listing.industry }})</h4>
+                    <a href="{% url 'companies:company' listing.company.id %}">
+                      <h6 class="card-subtitle text-muted mb-2">{{ listing.company }}</h6>
+                    </a>
+                    <p class="card-subtitle">{{ listing.budget }}</p>
+                    <p class="card-subtitle">{{ listing.duration }}</p>
+                    <p class="card-text">{{ listing.description|truncatechars:150 }}</p>
+                    <p class="card-text">{{ listing.requirement|truncatechars:150 }}</p>
+                    <p class="card-text">Published {{ listing.publish_date|timesince }} ago</p>
+                    <a href="{% url 'listings:listing' listing.id %}"
+                       class="btn btn-outline-primary">Read More</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class='col-md-12 text-center text-muted'>
+            <h1>No Jobs available at the moment. Please check back later.</h1>
+          </div>
+        {% endif %}
+      </div>
+      <!-- Pagination -->
+      <div class="row">
+        <div class="col-md-12">
+          {% if listings.has_other_pages %}
+            <ul class="pagination">
+              {% if listings.has_previous %}
+                <li class="page-item">
+                  <a class="page-link"
+                     href="?page={{ listings.previous_page_number }}{% if get_params %}&{{ get_params }}{% endif %}">&laquo;</a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <a class="page-link" href="#">&laquo;</a>
+                </li>
+              {% endif %}
+              {% for i in listings.paginator.page_range %}
+                {% if listings.number == i %}
+                  <li class="page-item active">
+                    <a class="page-link">{{ i }}</a>
+                  </li>
+                {% else %}
+                  <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ i }}{% if get_params %}&{{ get_params }}{% endif %}">{{ i }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+              {% if listings.has_next %}
+                <li class="page-item">
+                  <a class="page-link"
+                     href="?page={{ listings.next_page_number }}{% if get_params %}&{{ get_params }}{% endif %}">&raquo;</a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <a class="page-link" href="#">&raquo;</a>
+                </li>
+              {% endif %}
+            </ul>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

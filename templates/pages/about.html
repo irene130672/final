@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+<!--load humanize -->
+{% load humanize %}
+<!-- About main content -->
+{% block content %}
+    <section id="showcase-inner" class="py-5 text-white">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-12">
+                    <h1 class="display-3">About Freelance Go</h1>
+                    <p class="lead"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb -->
+    <section id="bc" class="mt-3">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        {% comment %} changed {% endcomment %}
+                        <a href= {% url "pages:index" %}> <i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li class="breadcrumb-item active">About</li>
+                </ol>
+            </nav>
+        </div>
+    </section>
+    <section id="about" class="py-4">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-md">
+                    <h1 class="display-4">We bridge freelancers and companies.</h1>
+                    <p class="lead"></p>
+                    <img src={% static "img/about_2.png" %} alt="" />
+                    <p class="mt-4 text-left" style="font-size: 25px" !important>
+                        FreelancerGo was founded in 2026 by four ERB students majoring in Information Technology and Business Administration, evolving from a classroom project into a dedicated freelancer-matching platform. The team identified a critical gap: independent freelancers struggled to find stable clients, while small and medium-sized enterprises faced difficulties sourcing flexible, skilled talent. To address this, they launched the initial version of the platform—a streamlined information hub—with a core vision of "lightweight, transparent connection."
+                        <br />
+                        <br />
+                        In early 2025, the team upgraded FreelancerGo into a full-fledged service ecosystem in-platform communication tools, and project progress tracking, creating a seamless workflow from "demand posting" and "talent matching" to "collaboration completion." The platform adheres to a user-friendly model: zero entry barriers for both freelancers and enterprises, with a nominal service fee only charged upon successful collaboration.
+                        <br />
+                        <br />
+                        Today, FreelancerGo serves over 5,000 freelancers and 2,000 businesses worldwide. It has also established a long-term partnership with ERB, becoming an official internship and entrepreneurship cooperation base. Rooted in their classroom origins, the founding team remains committed to their original mission—"enabling the fair flow of professional value"—making FreelancerGo a trusted digital hub for young freelancers and growing businesses alike.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Work -->
+    <section id="work"
+             class="bg-dark text-white text-center"
+             style="padding: 5rem 0;
+                    margin: 0">
+        <h2 class="display-4 mb-3" style="margin-bottom: 1rem !important;">We Work For You</h2>
+        <br />
+        <a href="{% url 'listings:index' %}"
+           class="btn btn-info text-white btn-lg mb-0"
+           style="padding: 1.2rem 3rem;
+                  font-size: 1.8rem;
+                  font-weight: 600">View Our Job Listings</a>
+    </section>
+    <!-- Team -->
+    <section id="team" class="py-5">
+        <div class="container"
+             style="max-width: 900px;
+                    padding: 0;
+                    margin: 0 auto">
+            <img src="{% static "img/company_logos.png" %}"
+                 alt=""
+                 class="mb-3 img-fluid" />
+        </div>
+    </div>
+</div>
+</section>
+{% endblock %}

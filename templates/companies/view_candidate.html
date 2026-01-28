@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    <!-- Custom CSS for enhanced styling -->
+    <style>
+    /* HR Dashboard Custom Styles */
+    .candidate-card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border-radius: 8px;
+    }
+    .candidate-card .card-header {
+        background-color: #094194; /* Bootstrap primary color */
+        color: white;
+        border-radius: 8px 8px 0 0 !important;
+    }
+    .table-candidates {
+        --bs-table-hover-bg: #f8f9fa;
+    }
+    .table-candidates th {
+        border-top: none;
+        font-weight: 600;
+        color: #212529;
+    }
+    .table-candidates td {
+        vertical-align: middle;
+    }
+    .btn-download-cv {
+        background-color: #198754; /* Success green */
+        border-color: #198754;
+        color: white;
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+    }
+    .btn-download-cv:hover {
+        background-color: #157347;
+        border-color: #146c43;
+    }
+    .empty-state {
+        padding: 3rem 0;
+        color: #6c757d;
+        text-align: center;
+    }
+    .breadcrumb {
+        background-color: transparent;
+        padding: 0;
+    }
+    .breadcrumb-item a {
+        color: #094194;
+        text-decoration: none;
+    }
+    .breadcrumb-item.active {
+        color: #6c757d;
+    }
+    </style>
+    <div class="container mt-4">
+        <!-- Breadcrumb -->
+        <section id="bc" class="mt-3">
+            <div class="container">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{% url "pages:index" %}">
+                                <i class="fas fa-home"></i> Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url "companies:HR_dashboard" %}">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item active">View Candidate</li>
+                    </ol>
+                </nav>
+            </div>
+        </section>
+        <section id="view" class="mt-3">
+            <h2 class="h4 fw-bold mb-4 text-dark">Candidates for: {{ listing.title|default:"Job Listing" }}</h2>
+            {% if user_appliers %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">{{ listing.title }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table tabel-striped">
+                            <thead>
+                                <tr>
+                                    <th>Candidate Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Apply Date</th>
+                                    <th>CV</th>
+                                    <th>Application Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for apply in user_appliers %}
+                                    <tr>
+                                        <td>{{ apply.name }}</td>
+                                        <td>
+                                            <a href="mailto:{{ apply.email }}?subject=Regarding Your Application for {{ listing.title }}&body=Dear {{ apply.name }}%2C%0D%0A%0D%0AThank you for applying for the position of {{ listing.title }}.%0D%0A%0D%0A%0D%0ABest regards%2C%0D%0A{{ user.username }}"
+                                               class="text-primary">{{ apply.email }}</a>
+                                        </td>
+                                        <td>{{ apply.phone|default:"N/A" }}</td>
+                                        <td>
+                                            <small>{{ apply.apply_date|date:"M d, Y" }}</small>
+                                            <br>
+                                            <small class="text-muted">{{ apply.apply_date|time:"H:i" }}</small>
+                                        </td>
+                                        <td>
+                                            {% if apply.cv and apply.cv.url %}
+                                                <a href="{{ apply.cv.url }}"
+                                                   download
+                                                   class="btn btn-sm btn-download-cv"
+                                                   title="Download CV: {{ apply.cv.name|cut:'cv/' }}">
+                                                    <i class="fas fa-download me-1"></i> Download CV
+                                                </a>
+                                                <br>
+                                                <small class="text-muted mt-1 d-block">
+                                                    <i class="fas fa-file me-1"></i>
+                                                    {{ apply.cv.name|cut:'cv/'|truncatechars:20 }}
+                                                </small>
+                                            {% else %}
+                                                <span class="text-muted">No CV uploaded</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-primary"
+                                                    data-toggle="modal"
+                                                    data-target="#messageModal{{ forloop.counter }}">
+                                                View Message
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <div class="card candidate-card empty-state">
+                                    <div class="card-body">
+                                        <i class="fas fa-user-slash fs-1 mb-3"></i>
+                                        <h5 class="card-title">No Candidates Found</h5>
+                                        <p>There are no applicants for this job listing yet.</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<!-- Message Modals -->
+{% for apply in user_appliers %}
+    <div class="modal fade"
+         id="messageModal{{ forloop.counter }}"
+         tabindex="-1"
+         aria-labelledby="messageModalLabel{{ forloop.counter }}"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel{{ forloop.counter }}">Application Message from {{ apply.name }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% if apply.message %}
+                        <p>{{ apply.message }}</p>
+                    {% else %}
+                        <p class="text-muted">No message provided by the candidate.</p>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+<script>
+// Function to handle CV download with confirmation
+function handleCvDownload(event, candidateName, fileName) {
+    event.preventDefault();
+    const downloadUrl = event.currentTarget.href;
+    
+    if (confirm(`Download CV for ${candidateName}?\n\nFile: ${fileName}`)) {
+        // Create a temporary link to trigger the download
+        const tempLink = document.createElement('a');
+        tempLink.href = downloadUrl;
+        tempLink.download = fileName;
+        tempLink.style.display = 'none';
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        document.body.removeChild(tempLink);
+    }
+}
+
+// Attach download handlers to all CV download buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const cvDownloadButtons = document.querySelectorAll('.btn-download-cv');
+    
+            cvDownloadButtons.forEach(function(button) {
+            const row = button.closest('tr');
+            if (row) {
+                const candidateName = row.querySelector('td:first-child').textContent.trim();
+                const fileName = button.getAttribute('title') ? button.getAttribute('title').replace('Download CV: ', '') : 'CV.pdf';
+                
+                button.addEventListener('click', function(e) {
+                    handleCvDownload(e, candidateName, fileName);
+                });
+            }
+        });
+});
+</script>
+{% endblock %}
